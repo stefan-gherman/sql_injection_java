@@ -1,0 +1,2 @@
+With the following input I managed to commit SQL injection:
+<put your 'solution' here>
