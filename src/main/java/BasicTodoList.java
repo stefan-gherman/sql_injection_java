@@ -63,7 +63,9 @@ public class BasicTodoList {
     }
 
     private static String renderEditTodo(Request req) {
-        return renderTemplate("velocity/editTodo.vm", new HashMap<String, Object>(){{ put("todo", todoDao.find(req.params("id"))); }});
+        Map<String, Object> context = new HashMap<>();
+        context.put("todo", todoDao.find(req.params("id")));
+        return renderTemplate("velocity/editTodo.vm", context);
     }
 
     private static String renderTodos(Request req) {
