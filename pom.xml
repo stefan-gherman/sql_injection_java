@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>spark-intercooler</groupId>
-    <artifactId>spark-intercooler</artifactId>
+    <groupId>com.codecool</groupId>
+    <artifactId>sql-injection</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <build>
@@ -29,18 +29,8 @@
         </dependency>
         <dependency>
             <groupId>com.sparkjava</groupId>
-            <artifactId>spark-template-handlebars</artifactId>
-            <version>2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.sparkjava</groupId>
             <artifactId>spark-template-velocity</artifactId>
             <version>2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.8</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
