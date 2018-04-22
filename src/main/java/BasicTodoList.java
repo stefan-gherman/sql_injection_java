@@ -11,7 +11,7 @@ import static spark.Spark.*;
 public class BasicTodoList {
 
     private static TodoDao todoDao = new TodoDaoImplWithJdbc();
-    
+
     public static void main(String[] args) {
 
         exception(Exception.class, (e, req, res) -> e.printStackTrace()); // print all exceptions
@@ -63,7 +63,7 @@ public class BasicTodoList {
     }
 
     private static String renderEditTodo(Request req) {
-        return renderTemplate("velocity/editTodo.vm", new HashMap(){{ put("todo", todoDao.find(req.params("id"))); }});
+        return renderTemplate("velocity/editTodo.vm", new HashMap<String, Object>(){{ put("todo", todoDao.find(req.params("id"))); }});
     }
 
     private static String renderTodos(Request req) {
@@ -81,7 +81,7 @@ public class BasicTodoList {
         return renderTemplate("velocity/index.vm", model);
     }
 
-    private static String renderTemplate(String template, Map model) {
+    private static String renderTemplate(String template, Map<String, Object> model) {
         return new VelocityTemplateEngine().render(new ModelAndView(model, template));
     }
 
