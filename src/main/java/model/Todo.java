@@ -34,6 +34,10 @@ public class Todo {
         this.title = title;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     public Status getStatus() {
         return status;
     }
