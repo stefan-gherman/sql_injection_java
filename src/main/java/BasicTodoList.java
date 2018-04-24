@@ -2,7 +2,6 @@
 import model.Todo;
 import model.TodoDao;
 import model.TodoDaoImplWithJdbc;
-import model.TodoDaoImplWithList;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import spark.ModelAndView;
@@ -16,7 +15,7 @@ import static spark.Spark.*;
 
 public class BasicTodoList {
 
-    TodoDao todoDao = new TodoDaoImplWithList();
+    TodoDao todoDao = new TodoDaoImplWithJdbc();
 
     public static final String SUCCESS = "success";
 
