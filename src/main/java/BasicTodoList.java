@@ -1,88 +1,105 @@
-import model.*;
-import spark.*;
-import spark.template.velocity.*;
-import java.util.*;
+
+import model.Todo;
+import model.TodoDao;
+import model.TodoDaoImplWithJdbc;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import spark.ModelAndView;
+import spark.template.thymeleaf.ThymeleafTemplateEngine;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import static spark.Spark.*;
 
-/**
- * This class contains exactly the same functionality as TodoList,
- * but it's following normal Spark conventions more closely.
- */
 public class BasicTodoList {
 
-    private static TodoDao todoDao = new TodoDaoImplWithJdbc();
-    
+    TodoDao todoDao = new TodoDaoImplWithJdbc();
+
+    public static final String SUCCESS = "success";
+
     public static void main(String[] args) {
+        BasicTodoList todoApp = new BasicTodoList();
+        todoApp.run();
+    }
+
+    public void run() {
+
+        addSampleData();
 
         exception(Exception.class, (e, req, res) -> e.printStackTrace()); // print all exceptions
         staticFiles.location("/public");
         port(9999);
 
         // Render main UI
-        get("/", (req, res) -> renderTodos(req));
+        get("/", (req, res) -> {
+                Map<String, Object> model = new HashMap<>();
+                return new ThymeleafTemplateEngine().render(new ModelAndView(model, "index"));
+            });
 
         // Add new
-        post("/todos", (req, res) -> {
-            todoDao.add(Todo.create(req.queryParams("todo-title")));
-            return renderTodos(req);
-        });
+        post("/addTodo", (req, res) -> {
+                Todo newTodo = Todo.create(req.queryParams("todo-title"));
+                todoDao.add(newTodo);
+                return SUCCESS;
+            });
+
+        // List by id
+        post("/list", (req, resp) -> {
+                List<Todo> todos = todoDao.ofStatus(req.queryParams("status"));
+                JSONArray jsons = new JSONArray();
+                for (Todo todo : todos) {
+                    JSONObject jo = new JSONObject();
+                    jo.put("id", todo.getId());
+                    jo.put("title", todo.getTitle());
+                    jo.put("completed", todo.isComplete());
+                    jsons.put(jo);
+                }
+                final int indentFactor = 2;
+                return jsons.toString(indentFactor);
+            });
 
         // Remove all completed
         delete("/todos/completed", (req, res) -> {
-            todoDao.removeCompleted();
-            return renderTodos(req);
-        });
+                todoDao.removeCompleted();
+                return SUCCESS;
+            });
 
         // Toggle all status
-        put("/todos/toggle_status", (req, res) -> {
-            todoDao.toggleAll(req.queryParams("toggle-all") != null);
-            return renderTodos(req);
-        });
+        put("/todos/toggle_all", (req, res) -> {
+                String complete = req.queryParams("toggle-all");
+                todoDao.toggleAll(complete.equals("true"));
+                return SUCCESS;
+            });
 
         // Remove by id
         delete("/todos/:id", (req, res) -> {
-            todoDao.remove(req.params("id"));
-            return renderTodos(req);
-        });
+                todoDao.remove(req.params("id"));
+                return SUCCESS;
+            });
 
         // Update by id
         put("/todos/:id", (req, res) -> {
-            todoDao.update(req.params("id"), req.queryParams("todo-title"));
-            return renderTodos(req);
-        });
+                todoDao.update(req.params("id"), req.queryParams("todo-title"));
+                return SUCCESS;
+            });
+
+        // Find by id
+        get("/todos/:id", (req, res) -> todoDao.find(req.params("id")).getTitle());
 
         // Toggle status by id
         put("/todos/:id/toggle_status", (req, res) -> {
-            todoDao.toggleStatus(req.params("id"));
-            return renderTodos(req);
-        });
-
-        // Edit by id
-        get("/todos/:id/edit", (req, res) -> renderEditTodo(req));
-
+                // boolean completed = Boolean.valueOf(req.queryParams("status"));
+                todoDao.toggleStatus(req.params("id"));
+                return SUCCESS;
+            });
     }
 
-    private static String renderEditTodo(Request req) {
-        return renderTemplate("velocity/editTodo.vm", new HashMap(){{ put("todo", todoDao.find(req.params("id"))); }});
-    }
-
-    private static String renderTodos(Request req) {
-        String statusStr = req.queryParams("status");
-        Map<String, Object> model = new HashMap<>();
-        model.put("todos", todoDao.ofStatus(statusStr));
-        model.put("filter", Optional.ofNullable(statusStr).orElse(""));
-        model.put("activeCount", todoDao.ofStatus(Status.ACTIVE).size());
-        model.put("anyCompleteTodos", todoDao.ofStatus(Status.COMPLETE).size() > 0);
-        model.put("allComplete", todoDao.all().size() == todoDao.ofStatus(Status.COMPLETE).size());
-        model.put("status", Optional.ofNullable(statusStr).orElse(""));
-        if ("true".equals(req.queryParams("ic-request"))) {
-            return renderTemplate("velocity/todoList.vm", model);
-        }
-        return renderTemplate("velocity/index.vm", model);
-    }
-
-    private static String renderTemplate(String template, Map model) {
-        return new VelocityTemplateEngine().render(new ModelAndView(model, template));
+    private void addSampleData() {
+        todoDao.add(Todo.create("first TODO item"));
+        todoDao.add(Todo.create("second TODO item"));
+        todoDao.add(Todo.create("third TODO item"));
     }
 
 }
