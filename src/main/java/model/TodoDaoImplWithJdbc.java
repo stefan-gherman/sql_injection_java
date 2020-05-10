@@ -10,14 +10,29 @@ import java.util.List;
 public class TodoDaoImplWithJdbc implements TodoDao {
 
     private static final String DATABASE = "jdbc:postgresql://localhost:5432/todolist";
-    private static final String DB_USER = "postgres";
-    private static final String DB_PASSWORD = "postgres";
+    private static final String DB_USER = "stefan_g";
+    private static final String DB_PASSWORD = "lenovoideapadS340";
 
     @Override
     public void add(Todo todo) {
-        String query = "INSERT INTO todos (title, id, status) " +
-                "VALUES ('" + todo.title + "', '" + todo.id + "', '" + todo.status + "');";
-        executeQuery(query);
+//        String query = "INSERT INTO todos (title, id, status) " +
+//                "VALUES ('" + todo.title + "', '" + todo.id + "', '" + todo.status + "');";
+        String query = "INSERT INTO todos (title, id, status) VALUES (?, ?, ?)";
+        try(
+                Connection connection = getConnection();
+                PreparedStatement statement = connection.prepareStatement(query);
+
+        )   {
+            statement.setString(1, todo.title);
+            statement.setString(2, todo.id);
+            statement.setString(3, String.valueOf(todo.status));
+            statement.executeQuery();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(query);
+        //executeQuery(query);
     }
 
     @Override

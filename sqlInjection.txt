@@ -1,2 +1,12 @@
 With the following input I managed to commit SQL injection:
 <put your 'solution' here>
+
+My first solution was to write something like:
+    '); DROP TABLE todos; --'
+    However, this did not work as it triggered a syntax error fir the insert statement: ERROR: INSERT has more target columns than expression
+
+Next step was to try to insert all the data and then a drop table at the end which worked:
+    item1 + ',' + item2 + ',' + item3 + '); DELETE FROM todos;--'
+    However this approach is based on the fact that the attacker knows the number of input params the query takes.
+
+cal + ',' + calut + ',' + altceva + '); DELETE FROM todos;--
